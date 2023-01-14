@@ -1,0 +1,132 @@
+.content {
+    padding: 1.25rem;
+    margin-inline: auto;
+    width: min(100%, 800px);
+}
+
+.class-hero {
+    border: 1px solid var(--grey-color);
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    padding-top: 7.25rem;
+    color: white;
+    position: relative;
+    isolation: isolate;
+    margin-bottom: 0.75rem;
+    background-position: right;
+}
+
+.class-hero > * {
+    margin: 0;
+    padding: 0;
+}
+
+.class-hero > h2 {
+    font-size: xx-large;
+}
+
+.class-hero > p {
+    font-size: x-large;
+}
+
+.class-hero .backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(0, 0, 0);
+    background: linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.4990371148459384) 25%,
+        rgba(255, 255, 255, 0) 100%
+    );
+
+    z-index: -1;
+}
+
+/* banners */
+.banner-blue {
+    background-image: var(--banner-blue);
+}
+.banner-green {
+    background-image: var(--banner-green);
+}
+.banner-pink {
+    background-image: var(--banner-pink);
+}
+.banner-orange {
+    background-image: var(--banner-orange);
+}
+.banner-cyan {
+    background-image: var(--banner-cyan);
+}
+.banner-purple {
+    background-image: var(--banner-purple);
+}
+.banner-lightblue {
+    background-image: var(--banner-lightblue);
+}
+.banner-grey {
+    background-image: var(--banner-grey);
+}
+
+.bi {
+    display: block;
+}
+
+.chat-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(72, 131, 220);
+    border-radius: 50%;
+    padding: 4px;
+    height: 45px;
+    width: 45px;
+    color: white;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 250ms ease-in-out;
+    color: white !important;
+}
+
+.avatar-container {
+    position: absolute;
+    right: 10px;
+    bottom: 5px;
+    display: flex;
+    gap: 8px;
+}
+
+.teacher-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(72, 131, 220);
+    border-radius: 50%;
+    padding: 4px;
+    height: 45px;
+    width: 45px;
+    color: white;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 250ms ease-in-out;
+    color: white !important;
+}
+
+.teacher-avatar:hover {
+    background-color: rgb(45, 108, 203);
+}
+
+.chat-avatar:hover {
+    background-color: rgb(49, 154, 215);
+    color: white;
+}
+
+.chat-avatar p {
+    letter-spacing: -2px;
+}
+
+.chat-container {
+    max-width: 600px;
+    overflow-x: auto;
+    display: flex;
+}
