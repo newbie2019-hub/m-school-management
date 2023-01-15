@@ -9,7 +9,7 @@
 
 {{-- page content --}}
 @section('page_content')
-    <x-fab-chat />
+    <x-fab-chat auth_type="student"/>
 
     <div class="class-hero banner-{{ $mclass->class_color }}">
         <h2>{{ $mclass->subject }}</h2>
@@ -21,7 +21,12 @@
                 <p>{{ $mclass->classTeacher->firstname }} {{ $mclass->classTeacher->lastname[0] . '.' }}</p>
                 <p style="color:rgb(231, 231, 231); font-size: .7rem; text-transform: uppercase">Class Owner</p>
             </div>
-            <a href="/messages/{{ $mclass->classTeacher->id }}">
+            <a
+                href="{{ route('messages.show', [
+                    'message' => $mclass->classTeacher->id,
+                    'recipient_type' => 'teacher',
+                    'auth_type' => 'student',
+                ]) }}">
                 <div class="teacher-avatar">
                     <p>{{ $mclass->classTeacher->firstname[0] . $mclass->classTeacher->lastname[0] }}</p>
                 </div>

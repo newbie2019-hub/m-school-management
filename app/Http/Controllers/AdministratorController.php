@@ -34,6 +34,9 @@ class AdministratorController extends Controller
 
         if (Auth::guard('administrator')->attempt($credentials->validate())) {
             $request->session()->regenerate();
+
+            session(['administrator' => true]);
+
             return
                 redirect()
                 ->intended('/administration/dashboard');

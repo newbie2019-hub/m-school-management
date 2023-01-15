@@ -55,3 +55,7 @@
     padding: 4px;
     background-color: rgb(72, 131, 220);
 }
+
+.chat-avatar img {
+    color: white;
+}

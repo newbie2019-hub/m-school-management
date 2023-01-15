@@ -9,7 +9,7 @@
 
 {{-- page content --}}
 @section('page_content')
-    <x-fab-chat />
+    <x-fab-chat auth_type="teacher"/>
 
     <div class="class-hero banner-{{ $mclass->class_color }}">
         <h2>{{ $mclass->subject }}</h2>
@@ -23,7 +23,12 @@
         <p>STUDENTS</p>
         @forelse ($mclass->students as $student)
             <div class="chat-container">
-                <a href="/messages/{{ $student->student->id }}" class="chat-avatar">
+                <a href="{{ route('messages.show', [
+                    'message' => $student->student->id,
+                    'auth_type' => 'teacher',
+                    'recipient_type' => 'student'
+                ]) }}"
+                    class="chat-avatar">
                     <p>{{ $student->student->firstname[0] }} {{ $student->student->lastname[0] }}</p>
                 </a>
             </div>

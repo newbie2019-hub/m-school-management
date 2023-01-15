@@ -190,6 +190,8 @@
                         'user_two_type': user_two_type.val(),
                         'message': message.val(),
                         'conversation_id': conversation_id.val(),
+                        'auth_type': auth_type.val(),
+                        'auth_id': auth_id.val(),
                     }).then(() => {
                         $('.chat').append(
                             `<div class='chat-message from'> <p>${message.val()}</p></div>`);
@@ -213,7 +215,8 @@
 
             let channel = Echo.channel(`channel-chat-${conversation_id.val()}-${auth_type.val()}`)
 
-            // console.log(`channel-chat-${conversation_id.val()}-${auth_type.val()}`);
+            console.log('User Two: ', user_two.val(), user_two_type.val())
+            console.log(`channel-chat-${conversation_id.val()}-${auth_type.val()}`);
             channel.listen('.channel-chat', function(data) {
                 $('.chat').append(`<div class='chat-message to'> <p>${data.message}</p></div>`);
             })

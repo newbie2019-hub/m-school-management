@@ -59,6 +59,12 @@
                             <td><a href="/administration/teachers/{{ $teacher->id }}">{{ $teacher->lastname }}</a></td>
                             <td>
                                 <div class="actions">
+                                    <a href="{{ route('messages.show', [
+                                        'message' => $teacher->id,
+                                        'auth_type' => 'administrator',
+                                        'recipient_type' => 'teacher',
+                                    ]) }}"
+                                        class="action-update">Message</a>
                                     <button class="action-update">Update</button>
                                     <button class="action-delete">Delete</button>
                                 </div>
@@ -81,7 +87,8 @@
                     @csrf
                     <div>
                         <label for="teacher_id">Teacher ID</label>
-                        <input type="text" name="teacher_id" id="teacher_id" pattern="[0-9]{7}" value="{{ old('teacher_id') }}" required>
+                        <input type="text" name="teacher_id" id="teacher_id" pattern="[0-9]{7}"
+                            value="{{ old('teacher_id') }}" required>
                         @error('teacher_id')
                             <div class="error_message">{{ $message }}</div>
                         @enderror
@@ -106,14 +113,17 @@
                     </div>
                     <div>
                         <label for="email">Email address</label>
-                        <input type="email" name="email" id="email" pattern="(?![_.-])((?![_.-][_.-])[\w.-]){0,63}[a-zA-Z\d]@((?!-)((?!--)[a-zA-Z\d-]){0,63}[a-zA-Z\d]\.){1,2}([a-zA-Z]{2,14}\.)?[a-zA-Z]{2,14}" value="{{ old('email') }}" required>
+                        <input type="email" name="email" id="email"
+                            pattern="(?![_.-])((?![_.-][_.-])[\w.-]){0,63}[a-zA-Z\d]@((?!-)((?!--)[a-zA-Z\d-]){0,63}[a-zA-Z\d]\.){1,2}([a-zA-Z]{2,14}\.)?[a-zA-Z]{2,14}"
+                            value="{{ old('email') }}" required>
                         @error('email')
                             <div class="error_message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div>
                         <label for="phone_number">Phone number</label>
-                        <input type="phone_number" name="phone_number" id="phone_number" pattern="09[0-9]{9}" value="{{ old('phone_number') }}" required>
+                        <input type="phone_number" name="phone_number" id="phone_number" pattern="09[0-9]{9}"
+                            value="{{ old('phone_number') }}" required>
                         @error('phone_number')
                             <div class="error_message">{{ $message }}</div>
                         @enderror

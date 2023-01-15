@@ -1,5 +1,0 @@
-Chat
-admin -> teacher
-teacher -> student
-
-Deploy

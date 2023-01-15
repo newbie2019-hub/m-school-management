@@ -1,4 +1,6 @@
-<a href="/messages"
+@props(['authType' => ''])
+
+<a href="{{ route('messages.index', ['auth_type' => $authType]) }}"
     style="position: fixed; right: 50px; bottom: 40px;
     display: flex; align-items:center; justify-content: center;
     background-color: rgb(74, 116, 222); height: 60px; width: 60px;

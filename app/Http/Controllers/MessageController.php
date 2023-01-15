@@ -14,37 +14,40 @@ class MessageController extends Controller
 {
     public function index(Request $request)
     {
-        $userId = auth($this->getAuthUser())->id();
+        $userId = auth($request->auth_type)->id();
+        if(!$request->auth_type) {
+            abort(404);
+        }
         /**
          *  Check the authenticated user
          *  and then query the recipient.
          */
-        if ($this->getAuthUser() == 'teacher') {
+        if ($request->auth_type == 'teacher') {
             $type = 'student';
         }
 
-        if ($this->getAuthUser() == 'administrator') {
+        if ($request->auth_type == 'administrator') {
             $type = 'teacher';
         }
 
-        if ($this->getAuthUser() == 'student') {
+        if ($request->auth_type == 'student') {
             $type = 'teacher';
         }
 
         $conversations = Conversation::with(['latest', 'one_userable', 'two_userable'])
-            ->where(function ($query) use ($userId) {
+            ->where(function ($query) use ($userId, $request) {
                 $query->where('user_one', $userId)
-                    ->where('user_one_type', $this->getAuthUser());
+                    ->where('user_one_type', $request->auth_type);
             })
-            ->orWhere(function ($query) use ($userId) {
+            ->orWhere(function ($query) use ($userId, $request) {
                 $query->where('user_two', $userId)
-                    ->where('user_two_type', $this->getAuthUser());
+                    ->where('user_two_type', $request->auth_type);
             })->get();
 
         return view('messages', [
             'conversations' => $conversations,
-            'auth_id' => auth($this->getAuthUser())->id(),
-            'auth_type' => $this->getAuthUser(),
+            'auth_id' => auth($request->auth_type)->id(),
+            'auth_type' => $request->auth_type,
             'type' => $type
         ]);
     }
@@ -52,24 +55,27 @@ class MessageController extends Controller
     public function show(Request $request, $id)
     {
         $userId = auth($this->getAuthUser())->id();
+        if(!$request->recipient_type) {
+            abort(404);
+        }
 
         /**
          *  Check the authenticated user
          *  and then query the recipient.
          */
-        if ($this->getAuthUser() == 'teacher') {
+        if ($request->recipient_type == 'teacher') {
+            $user = Teacher::where('id', $id)->first();
+            $type = 'teacher';
+        }
+
+        if ($request->recipient_type == 'student') {
             $user = Student::where('id', $id)->first();
             $type = 'student';
         }
 
-        if ($this->getAuthUser() == 'administrator') {
-            $user = Teacher::where('id', $id)->first();
-            $type = 'teacher';
-        }
-
-        if ($this->getAuthUser() == 'student') {
-            $user = Teacher::where('id', $id)->first();
-            $type = 'teacher';
+        if ($request->recipient_type == 'administrator') {
+            $user = Administrator::where('id', $id)->first();
+            $type = 'administrator';
         }
 
         /**
@@ -78,23 +84,38 @@ class MessageController extends Controller
          *  conversations for both users.
          */
         $conversation = Conversation::with(['messages'])->where(
-            fn ($query) =>
-            $query->where('user_one', $userId)
-                ->where('user_one_type', $this->getAuthUser())
-        )
-            ->orWhere(
-                fn ($query) =>
-                $query->where('user_two', $id)
-                    ->where('user_two_type', $type)
-            )->orWhere(
-                fn ($query) =>
-                $query->where('user_one', $id)
-                    ->where('user_one_type', $type)
-            )->orWhere(
-                fn ($query) =>
-                $query->where('user_two', $userId)
-                    ->where('user_two_type', $userId)
-            )->first();
+            [
+                ['user_one', $userId],
+                ['user_one_type', $request->auth_type],
+                ['user_two', $id],
+                ['user_two_type', $request->recipient_type]
+            ],
+        )->orWhere(
+            [
+                ['user_one', $id],
+                ['user_one_type', $request->recipient_type],
+                ['user_two', $userId],
+                ['user_two_type', $request->auth_type]
+            ]
+        )->first();
+
+
+        if (!$conversation) {
+            $conversation = Conversation::create([
+                'user_one' => auth($request->auth_type)->id(),
+                'user_one_type' => $request->auth_type,
+                'one_userable_id' => auth($request->auth_type)->id(),
+                'one_userable_type' => $this->modelClass($request->auth_type),
+                'two_userable_id' => $id,
+                'two_userable_type' => $this->modelClass($request->recipient_type),
+                'user_two' => $id,
+                'user_two_type' => $request->recipient_type,
+            ]);
+
+            $conversation->load(['messages']);
+        }
+
+        // dd($type, $userId, $id, $this->getAuthUser());
 
         /**
          * Will return null conversation
@@ -106,9 +127,18 @@ class MessageController extends Controller
             'user_two' => $user->id,
             'user_two_type' => $type,
             'user' => $user,
-            'auth_id' => auth($this->getAuthUser())->id(),
-            'auth_type' => $this->getAuthUser()
+            'auth_id' => auth($request->auth_type)->id(),
+            'auth_type' => $request->auth_type
         ]);
+    }
+
+    public function modelClass($class)
+    {
+        return match ($class) {
+            'administrator' => Administrator::class,
+            'student' => Student::class,
+            'teacher' => Teacher::class
+        };
     }
 
     public function store(Request $request)
@@ -121,55 +151,16 @@ class MessageController extends Controller
             'user_two_type' => 'required',
         ]);
 
-        //Generate type for morphTo
-        if ($this->getAuthUser() === 'student') {
-            $morphClass = Student::class;
-        }
-
-        if ($this->getAuthUser() === 'teacher') {
-            $morphClass = Teacher::class;
-        }
-
-        if ($this->getAuthUser() === 'administrator') {
-            $morphClass = Administrator::class;
-        }
-
-        if ($request->user_two_type === 'student') {
-            $morphClassTwo = Student::class;
-        }
-
-        if ($request->user_two_type === 'teacher') {
-            $morphClassTwo = Teacher::class;
-        }
-
-        if ($request->user_two_type === 'administrator') {
-            $morphClassTwo = Administrator::class;
-        }
-
-        //Store the conversation
-        if (!$request->conversation_id) {
-            $conversation = Conversation::create([
-                'user_one' => auth($this->getAuthUser())->id(),
-                'user_one_type' => $this->getAuthUser(),
-                'one_userable_id' => auth($this->getAuthUser())->id(),
-                'one_userable_type' => $morphClass,
-                'two_userable_id' => $request->user_two,
-                'two_userable_type' => $morphClassTwo,
-                'user_two' => $request->user_two,
-                'user_two_type' => $request->user_two_type,
-            ]);
-        }
-
         //Store the message
         Message::create([
-            'conversation_id' => $request->conversation_id ?? $conversation->id,
+            'conversation_id' => $request->conversation_id,
             'message' => $request->message,
-            'sender_id' => auth($this->getAuthUser())->id(),
-            'sender_type' => $this->getAuthUser()
+            'sender_id' => $request->auth_id,
+            'sender_type' => $request->auth_type
         ]);
 
         //Emit the event with the conversation id and user type of the recepient user
-        ChatEvent::dispatch($request->message, $request->conversation_id ?? $conversation->id, $request->user_two_type);
+        ChatEvent::dispatch($request->message, $request->conversation_id, $request->user_two_type);
 
         // return back()->with(['status' => 'success']);
     }

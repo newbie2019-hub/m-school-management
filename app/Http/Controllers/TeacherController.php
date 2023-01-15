@@ -70,6 +70,9 @@ class TeacherController extends Controller
 
         if (Auth::guard('teacher')->attempt($credentials, true)) {
             $request->session()->regenerate();
+
+            session(['administrator' => false]);
+
             return
                 redirect()
                 ->intended('/teacher/classes');

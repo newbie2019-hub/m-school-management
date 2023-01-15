@@ -163,6 +163,9 @@ class StudentController extends Controller
 
         if (Auth::guard('student')->attempt($credentials)) {
             $request->session()->regenerate();
+
+            session(['administrator' => false]);
+
             return
                 redirect()
                 ->intended('/student/classes');
